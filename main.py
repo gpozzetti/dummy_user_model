@@ -1,13 +1,9 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_session import Session
+from flask import Blueprint, render_template, redirect, url_for,request
 # init SQLAlchemy so we can use it later in our models
 db = SQLAlchemy()
-
-
-
-from flask import Blueprint, render_template, redirect, url_for,request
-
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True) # primary keys are required by SQLAlchemy
@@ -36,29 +32,21 @@ def signup():
 
     if user: # if a user is found, we want to redirect back to signup page so user can try again
         return redirect(url_for('auth.signup'))
+    if request.method=='POST':
 
-    # create new user with the form data. Hash the password so plaintext version isn't saved.
-    new_user = User(email=email, name=name, password=generate_password_hash(password, method='sha256'))
+        # create new user with the form data. Hash the password so plaintext version isn't saved.
+        new_user = User(email=email, name=name, password=generate_password_hash(password, method='sha256'))
 
-    # add the new user to the database
-    db.session.add(new_user)
-    db.session.commit()
+        # add the new user to the database
+        db.session.add(new_user)
+        db.session.commit()
+        return 'You are signed UP!!! :)'
     return render_template('signup.html')
 
-# @auth_blueprint.route('/signup')
-# def signup():
-#     return render_template('signup.html')#'Signup'
 
 @auth_blueprint.route('/logout')
 def logout():
     return 'Logout'
-
-# @auth_blueprint.route('/signup', methods=['POST'])
-# def signup_post():
-#     # code to validate and add user to database goes here
-#     return redirect(url_for('auth_blueprint.login'))
-
-
 
 ######## MAIN BLUEPRINT
 
