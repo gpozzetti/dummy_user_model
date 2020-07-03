@@ -6,8 +6,8 @@ db = SQLAlchemy()
 
 
 
-from flask import Blueprint, render_template, redirect, url_for
-from . import db
+from flask import Blueprint, render_template, redirect, url_for,request
+
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True) # primary keys are required by SQLAlchemy
@@ -26,27 +26,28 @@ auth_blueprint = Blueprint('auth', __name__)
 def login():
     return render_template('login.html')#'Login'
 
-@auth_blueprint.route('/signup', methods=['POST'])
-# def signup():
-#     email = request.form.get('email')
-#     name = request.form.get('name')
-#     password = request.form.get('password')
-#
-#     user = User.query.filter_by(email=email).first() # if this returns a user, then the email already exists in database
-#
-#     if user: # if a user is found, we want to redirect back to signup page so user can try again
-#         return redirect(url_for('auth.signup'))
-#
-#     # create new user with the form data. Hash the password so plaintext version isn't saved.
-#     new_user = User(email=email, name=name, password=generate_password_hash(password, method='sha256'))
-#
-#     # add the new user to the database
-#     db.session.add(new_user)
-#     db.session.commit()
-#
-#     return redirect(url_for('auth.login'))
+@auth_blueprint.route('/signup',methods=['GET','POST'])
 def signup():
-    return render_template('signup.html')#'Signup'
+    email = request.form.get('email')
+    name = request.form.get('name')
+    password = request.form.get('password')
+
+    user = User.query.filter_by(email=email).first() # if this returns a user, then the email already exists in database
+
+    if user: # if a user is found, we want to redirect back to signup page so user can try again
+        return redirect(url_for('auth.signup'))
+
+    # create new user with the form data. Hash the password so plaintext version isn't saved.
+    new_user = User(email=email, name=name, password=generate_password_hash(password, method='sha256'))
+
+    # add the new user to the database
+    db.session.add(new_user)
+    db.session.commit()
+    return render_template('signup.html')
+
+# @auth_blueprint.route('/signup')
+# def signup():
+#     return render_template('signup.html')#'Signup'
 
 @auth_blueprint.route('/logout')
 def logout():
@@ -81,6 +82,7 @@ def create_app():
     app.config['SECRET_KEY'] = '9OLWxND4o83j4K4iuopO'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///DB.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
     db.init_app(app)
 
     # blueprint for auth routes in our app
@@ -94,8 +96,9 @@ def create_app():
 
 
 
-app=create_app()
-Session(app)
+
 
 if __name__ == "__main__":
+    app=create_app()
+
     app.run()
