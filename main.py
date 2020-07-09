@@ -18,8 +18,22 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 auth_blueprint = Blueprint('auth', __name__)
 
-@auth_blueprint.route('/login')
+@auth_blueprint.route('/login',methods=['GET','POST'])
 def login():
+    if request.method=='POST':
+        the_email = request.form.get('email')
+        name = request.form.get('name')
+        password = request.form.get('password')
+
+        #the_password=User.query.filter_by(email=the_email).first().password
+        user = User.query.filter_by(email=the_email).first()
+        if user:
+            print('got the user')
+
+        #if check_password_hash( user.password,password ):
+        if check_password_hash(generate_password_hash('ciccio', method='sha256'),password):
+            return 'You are logged in!'
+        return 'You tried to log in with emal '+the_email+' but you did not have the right password'
     return render_template('login.html')#'Login'
 
 @auth_blueprint.route('/signup',methods=['GET','POST'])
