@@ -14,7 +14,7 @@ class User():
     logged_in=False
     name=None
     mail=None
-    password_challenge=None
+
 
     ## Linking to the database
     def __init__(self,db):
@@ -22,17 +22,14 @@ class User():
 
     def log_in(self,mail, password):
         ## Check if user exists, and has the password
-        if check_password_hash(user.password_challenge,password):
+        users=self.get_user_table()
+        users=users.set_index('email')
+        password_challenge=users.loc[mail,'password']
+        print(password_challenge)
+        if check_password_hash(password_challenge,password):
             self.logged_in=True
 
         return self.logged_in
-
-    def sign_up(self,mail,name, password):
-        self.name=name
-        self.mail=mail
-        self.password=password
-        ## Addi it to the database
-
 
     def get_user_table(self):
         ## Opening and closing a connection to register the search
@@ -110,8 +107,6 @@ def signup():
         else:
             print('User Already Existing')
             flash('This user is already registered, try to login instead')
-
-
 
     return render_template('signup.html')
 
