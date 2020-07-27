@@ -27,6 +27,8 @@ class User():
         password_challenge=users.loc[mail,'password']
         print(password_challenge)
         if check_password_hash(password_challenge,password):
+            self.mail=mail
+            self.name=users.loc[mail,'name']
             self.logged_in=True
 
         return self.logged_in
@@ -114,8 +116,8 @@ def signup():
 @app.route('/login',methods=['GET','POST'])
 def login():
     if request.method=='POST':
-        current_user.log_in(request.form.get('email'),request.form.get('password'))
-        return redirect(url_for('profile'))
+        if current_user.log_in(request.form.get('email'),request.form.get('password')):
+            return redirect(url_for('profile'))
 
     return render_template('login.html')
 
@@ -129,7 +131,7 @@ def logout():
 def profile():
     if current_user.logged_in:
         name=current_user.name
-        return render_template('profile.html')
+        return render_template('profile.html',name=name)
     else:
         return redirect(url_for('login'))
 
