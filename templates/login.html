@@ -24,6 +24,15 @@
             </div>
             <button class="button is-block is-info is-large is-fullwidth">Login</button>
         </form>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for message in messages %}
+
+                  <h2 class="mx-auto mt-5 mb-5">{{message[1]}}</h2>
+
+              {% endfor %}
+          {% endif %}
+      {% endwith %}
     </div>
 </div>
 {% endblock %}

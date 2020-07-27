@@ -116,8 +116,13 @@ def signup():
 @app.route('/login',methods=['GET','POST'])
 def login():
     if request.method=='POST':
+        
         if current_user.log_in(request.form.get('email'),request.form.get('password')):
+            print('i should be signed in ')
             return redirect(url_for('profile'))
+
+        else:
+            flash('Incorrect email or password')
 
     return render_template('login.html')
 
