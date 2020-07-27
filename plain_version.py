@@ -11,27 +11,32 @@ db = SQLAlchemy()
 
 ### user class (probably better to use the flask one but still have to understand it )
 class User():
-    logged_in=False
-    name=None
-    mail=None
-
-
     ## Linking to the database
     def __init__(self,db):
         self.db_path=db
+        self.logged_in=False
+        self.name=None
+        self.mail=None
 
     def log_in(self,mail, password):
         ## Check if user exists, and has the password
         users=self.get_user_table()
-        users=users.set_index('email')
-        password_challenge=users.loc[mail,'password']
-        print(password_challenge)
-        if check_password_hash(password_challenge,password):
-            self.mail=mail
-            self.name=users.loc[mail,'name']
-            self.logged_in=True
+        if mail in users['email'].to_list():
+            print('I got the user')
+            users=users.set_index('email')
+            password_challenge=users.loc[mail,'password']
+            if check_password_hash(password_challenge,password):
+                self.mail=mail
+                self.name=users.loc[mail,'name']
+                self.logged_in=True
 
         return self.logged_in
+
+    def logout(self):
+        self.logged_in=False
+        self.name=None
+        self.mail=None
+
 
     def get_user_table(self):
         ## Opening and closing a connection to register the search
@@ -95,6 +100,7 @@ current_user=User(app.config['SQLALCHEMY_DATABASE_URI'])
 
 @app.route('/')
 def home():
+    print(current_user.name)
     return render_template('index.html')
 
 
@@ -105,7 +111,8 @@ def signup():
         name=request.form.get('name')
         password=generate_password_hash(request.form.get('password'), method='sha256')
         if current_user.add_user(name,email,password):
-            redirect(url_for('profile'))
+
+            return redirect(url_for('profile'))
         else:
             print('User Already Existing')
             flash('This user is already registered, try to login instead')
@@ -129,7 +136,7 @@ def login():
 
 @app.route('/logout')
 def logout():
-    current_user.logged_in=False
+    current_user.logout()
     return render_template('login.html')
 
 @app.route('/profile')
