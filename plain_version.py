@@ -90,6 +90,11 @@ class User():
             return False
 
 
+        def get_models(self):
+            if self.logged_in:
+                print('Accessing priviledge accounts')
+
+
 app = Flask(__name__,static_url_path='/')
 app.config['SECRET_KEY'] = '9OLWxND4o83j4K4iuopO'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///DB.db'
@@ -111,7 +116,6 @@ def signup():
         name=request.form.get('name')
         password=generate_password_hash(request.form.get('password'), method='sha256')
         if current_user.add_user(name,email,password):
-
             return redirect(url_for('profile'))
         else:
             print('User Already Existing')
@@ -123,7 +127,7 @@ def signup():
 @app.route('/login',methods=['GET','POST'])
 def login():
     if request.method=='POST':
-        
+
         if current_user.log_in(request.form.get('email'),request.form.get('password')):
             print('i should be signed in ')
             return redirect(url_for('profile'))
