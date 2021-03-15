@@ -94,7 +94,7 @@ class User():
             if self.logged_in:
                 print('Accessing priviledge accounts')
 
-
+## Configuring the app
 app = Flask(__name__,static_url_path='/')
 app.config['SECRET_KEY'] = '9OLWxND4o83j4K4iuopO'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///DB.db'
@@ -103,12 +103,13 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 current_user=User(app.config['SQLALCHEMY_DATABASE_URI'])
 
+## App route for home directory, reshows the index
 @app.route('/')
 def home():
     print(current_user.name)
     return render_template('index.html')
 
-
+## App route for signup, allows users to create an account
 @app.route('/signup',methods=['GET','POST'])
 def signup():
     if request.method=='POST':
@@ -123,10 +124,11 @@ def signup():
 
     return render_template('signup.html')
 
-
+## App route to login , allows existing users to log in
 @app.route('/login',methods=['GET','POST'])
 def login():
     if request.method=='POST':
+        print('i should be signed in ')
 
         if current_user.log_in(request.form.get('email'),request.form.get('password')):
             print('i should be signed in ')
@@ -137,12 +139,13 @@ def login():
 
     return render_template('login.html')
 
-
+## App route to logout, reset the current user
 @app.route('/logout')
 def logout():
     current_user.logout()
     return render_template('login.html')
 
+## App route to get to user profile, if user logged in it provides a welcome message
 @app.route('/profile')
 def profile():
     if current_user.logged_in:
