@@ -3,10 +3,21 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_session import Session
 from flask import Blueprint, render_template, redirect, url_for,request
 from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, Table, Integer, String, Column, MetaData
 import pandas as pd
 # init SQLAlchemy so we can use it later in our models
 db = SQLAlchemy()
+
+def init_db(db_url):
+    engine = create_engine('sqlite:///DB.db', echo=True)
+    meta = MetaData()
+    user_table = Table(
+        'User', meta,
+        Column('name', String),
+        Column('email', String),
+        Column('password', String)
+    )
+    meta.create_all(engine)
 
 
 ### user class (probably better to use the flask one but still have to understand it )
@@ -89,7 +100,6 @@ class User():
         else:
             return False
 
-
         def get_models(self):
             if self.logged_in:
                 print('Accessing priviledge accounts')
@@ -99,6 +109,7 @@ app = Flask(__name__,static_url_path='/')
 app.config['SECRET_KEY'] = '9OLWxND4o83j4K4iuopO'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///DB.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+init_db
 
 db.init_app(app)
 current_user=User(app.config['SQLALCHEMY_DATABASE_URI'])
