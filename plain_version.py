@@ -109,7 +109,7 @@ app = Flask(__name__,static_url_path='/')
 app.config['SECRET_KEY'] = '9OLWxND4o83j4K4iuopO'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///DB.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-init_db
+init_db()
 
 db.init_app(app)
 current_user=User(app.config['SQLALCHEMY_DATABASE_URI'])
