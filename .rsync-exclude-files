@@ -1,0 +1,7 @@
+.git
+.gitignore
+.gitlab-ci.yml
+env
+__pycache__
+README.md
+requirements.txt

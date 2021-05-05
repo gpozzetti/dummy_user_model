@@ -1,0 +1,5 @@
+Flask
+Flask-Migrate
+flask-sqlalchemy
+nose2
+pandas
