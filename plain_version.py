@@ -64,9 +64,7 @@ class User():
         table_name = 'user'
         
         # TODO DIRTY Change to orm
-        sql_command_str = str('SELECT * from ' + table_name)
-        print(sql_command_str)
-        users_table = pd.read_sql(sql_command_str, con=engine)
+        users_table = pd.read_sql(str('SELECT * from '+table_name), con=engine)
 
         ## killing the connection
         engine.dispose()
@@ -95,12 +93,10 @@ class User():
             # TODO DIRTY Change to orm
             value = email + '\',\'' + name + '\',\'' + password
             ## A string with the sql command
-            sql_command_str = str('INSERT INTO ' + table_name)
-            sql_command_str += ' (' + column_name + ') VALUES (\''
-            sql_command_str += value + '\') ;')
-            print(sql_command_str)
+            command=str('INSERT INTO '+table_name+' ('+column_name+') VALUES (\''+value+'\') ;')
+            print(command)
             ## actually adding it
-            active_connection.execute(sql_command_str)
+            active_connection.execute(command)
             active_connection.close()
             ## killing the connection
             engine.dispose()
@@ -113,7 +109,8 @@ class User():
         ## if an user with this email is already there return false
         else:
             return False
-
+        # TODO check why indentation here. I see no reason why this should be like this
+        # This function being not called, I see no reason for encapsulation
         def get_models(self):
             if self.logged_in:
                 print('Accessing priviledge accounts')
