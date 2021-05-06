@@ -30,6 +30,17 @@ Development environment:
  
 ###
 Description of the existing functionalities
+ - localhost:5000/ serves a home page with a central title: Flask Login Example and a short description. Background color is green/blue. On right banner, a Home, a Profile, a Login, a Signup and a Logout links.
+ - Clicking the Profile button redirect to Login (/login)
+ - Clicking the Sign Up button redirect to Sign Up (/signup)
+    * a user is email, name, credentials
+    * there is apparently an email validator
+    * clicking on password field prope a secured password
+ - Clicking the Logout button redirect to Login page (through /logout)
+ - My first SignUp attempt led to an error 500:
+   "Internal Server Error
+    The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application"
+  -> database was not initialized properly so user table does not exist
 
 ###
 Definition of functional unit tests
