@@ -15,18 +15,19 @@ cd scratch
 echo -e "${BLU}Deploying and running Flask app${NC}"
 . run-set-env.sh
 
-echo -e "${BLU}Create database system${NC}"
+# Not needed for a simple example
+#echo -e "${BLU}Create database system${NC}"
 ########################
 # Create migration repository
-echo "Initialise Database"
-env/bin/python3 -m flask db init
+#echo "Initialise Database"
+#env/bin/python3 -m flask db init
 # First migration
-echo "Migrate Database"
+#echo "Migrate Database"
 #env/bin/flask db migrate -m "users table"
-env/bin/python3 -m flask db migrate
+#env/bin/python3 -m flask db migrate
 # Upgrade
-echo "Upgrade Database"
-env/bin/python3 -m flask db upgrade
+#echo "Upgrade Database"
+#env/bin/python3 -m flask db upgrade
 
 ########################
 # Launch app

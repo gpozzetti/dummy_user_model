@@ -32,16 +32,21 @@ Development environment:
 
 ### Description of the existing functionalities
  - localhost:5000/ serves a home page with a central title: Flask Login Example and a short description. Background color is green/blue. On right banner, a Home, a Profile, a Login, a Signup and a Logout links.
+ 
  - if not logged-in clicking the Profile button redirect to Login (/login)
-    * I could not test login function because the sign-up does not work
+    * After correcting the init_db bug, I could see that login directly redirect to the profile page. And here the Facebook was born :)
+ 
  - clicking the Sign Up button redirect to Sign Up (/signup)
     * a user is email, name, credentials
     * there is apparently an email validator
     * clicking on password field, frontend proposes a secured password, I can also type in myself, frontend does not check that my password is complex though...
+ 
  - clicking the Logout button redirect to Login page (through /logout)
- - My first SignUp attempt led to an error 500:
+ 
+ - my first SignUp attempt led to an error 500:
    "Internal Server Error
     The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application"
+    * after solving the init_db bug, I could correctly sign-up an account
 ###
 
 ### Critics and room for improvements
@@ -53,8 +58,11 @@ Development environment:
      -> flask development server is running
      -> but database was not initialized properly so user table does not exist. Actually, the .db sqlite3 files is just created after the missed attemps of a sign-up.
      Using sqlite editor to watch inside, I see an empty database file, without even the tables declared.
+
+     The absence of the README.MD is annoying because it can confuse the user which may ask himself if he needs to run some extra commands or different commands.
+     After solving the init_db bug, I noticed my approach to call the python script directly, as for very simple Flask example, is correct.
  
- - some typos made the code non PEP-8 and difficult to read.
+ - some "typos-formatting" made the code non PEP-8 and difficult to read.
  
  SQL Injections
  --------------
@@ -63,10 +71,16 @@ Development environment:
      -> they are read using pandas readsql feature so it is supposed to be safe (https://github.com/pandas-dev/pandas/blob/v1.2.4/pandas/io/sql.py#L426-L528
      -> but some concerns are not closed on pandas issue tracker (https://github.com/pandas-dev/pandas/issues/10899)
    * nevertheless, this approach looks more error prone as we may have to test many potentialities because the SQL command is assembled based on strings and parameters strings concatenation, the code is more difficult to read like that; so I would tend to replace that using completely the ORM of SQLAlchemy. Doing so, I am sure I am safe wrt SQL injections flaws.
- 
- - I would say the most dangerous line is this one: command=str('INSERT INTO '+table_name+' ('+column_name+') VALUES (\''+value+'\') ;')
- It is also the ugliest one. Because 'value' expand data entered by a user, I could well see ';' somewhere and a 'DROP TABLE USER' theoritically.
+      
+ - I would say the most dangerous existing line is this one: command=str('INSERT INTO '+table_name+' ('+column_name+') VALUES (\''+value+'\') ;')
+ It is also the ugliest one. Because 'value' expands data entered by a user, I could well see ';' somewhere and a 'DROP TABLE USER' theoritically.
  Not sure I will spend time to test around that because in the end I see this as not the best practices to do it like this.
+   -> after correcting the init_db bug, I could create an account with a name "* FROM USER;DROP TABLE USER;SELECT *" which may look like annoying...
+   -> fortunately, the related SQL command is an insert so the 'DROP TABLE' does not execute
+   -> fortunately, the SQLAlchemy is used to create the engine and it does not allow to run multi-query statements if we had SELECT somewhere
+ - (!)(!)(!)
+  however, building on these bricks, with a more complicated app, we could well imagine that some heavy day we forget the risk and create a 'SELECT * from user WHERE name = 0;DROP TABLE user;' by choosing carefully the name. This would happened by using for example 'cursor=db.cursor()' and 'cursor.executescript(command)' (see my dirty test method test_sql_inj on User class), because we have already made half the trip by choosing to connect to the database the direct way (and not with the ORM for example).
+   (!)(!)(!)
  
  Flask app structure
  -------------------
@@ -74,6 +88,8 @@ Development environment:
  It is better to keep things simpler, shorter and more approachable so I would at least decouple the script in between data models, routes , app code.
 
  - I noticed in the main entry point of the script that a call to a potential factory for the app has been commented. I do not really know why this app does not use a factory while it would make it more configurable and easy to extend as a good practice.
+
+ - For the datasystem, direct execution is used. SQLAlchemy is normally recommended with the ORM (using Sessions). Flask-SqlAlchemy makes this even easier.
 
  Frontend
  --------
@@ -83,10 +99,26 @@ Development environment:
  Various
  -------
  - I noticed that the init_db is not called with the double brackets.
+ - I noticed a url_db parameter making stuff crashing when calling init_db()
+ - I noticed the change to database were no persistent: if we restart flask server, the .db file is empty even if we signed up some people in
+
 ###
 
 ### Definition of functional unit tests
+SQL Injection
+-------------
+ - Uncomment the line in profile()
+ - Create the user in the order below (table will be dropped, while it contained both user at some time)
+credentials for tests:
+user1
+ced2@google.com
+0
+ced
 
+user2
+ced@google.com
+0;DROP TABLE user
+ced
 ###
 
 ### How-To-Run

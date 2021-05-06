@@ -70,7 +70,21 @@ class User():
         engine.dispose()
         return users_table
 
-
+    def test_sql_inj(self):
+        # SQL injection dirty test
+        pandas_test = False
+        connection_path = self.db_path
+        engine = create_engine(connection_path)
+        active_connection = engine.raw_connection()
+        cursor = active_connection.cursor()
+        command=str('SELECT * from user WHERE name = ' + self.name + ';')
+        print(command)
+        if pandas_test==True:
+          pd.read_sql(command, con=engine)
+        else:
+          cursor.executescript(command)
+          active_connection.close()
+        engine.dispose()
 
     def add_user(self, name, email, password):
         print("HERE add_user USER")
@@ -161,11 +175,11 @@ def signup():
 def login():
     print("HERE LOGIN")
     if request.method=='POST':
-        print('i should be signed in ')
+        print('I should be signed in ')
 
         if current_user.log_in(
             request.form.get('email'), request.form.get('password')):
-            print('i should be signed in ')
+            print('I should be signed in ')
             return redirect(url_for('profile'))
 
         else:
@@ -186,6 +200,9 @@ def profile():
     print("HERE PROFILE")
     if current_user.logged_in:
         name = current_user.name
+        # SQL injection dirty test
+        current_user.test_sql_inj()
+
         return render_template('profile.html', name=name)
     else:
         return redirect(url_for('login'))
