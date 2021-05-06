@@ -8,9 +8,9 @@ import pandas as pd
 # init SQLAlchemy so we can use it later in our models
 db = SQLAlchemy()
 
-## TODO check this db_url
+## TODO check this db_url -> deleted
 ## TODO I would rather use the flask db init command and the ORM
-def init_db(db_url):
+def init_db():
     print("HERE INIT_DB")
     engine = create_engine('sqlite:///DB.db', echo=True)
     meta = MetaData()
@@ -120,7 +120,7 @@ app = Flask(__name__,static_url_path='/')
 app.config['SECRET_KEY'] = '9OLWxND4o83j4K4iuopO'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///DB.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-init_db
+init_db() # TODO added the double brackets
 
 db.init_app(app)
 current_user = User(app.config['SQLALCHEMY_DATABASE_URI'])
