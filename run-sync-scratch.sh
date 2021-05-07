@@ -7,6 +7,5 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 echo -e "${BLU}Copying software package to test directory (scratch)${NC}"
-rm -rf  ./scratch
-mkdir scratch
+
 rsync -r --exclude-from='.rsync-exclude-files' . ./scratch

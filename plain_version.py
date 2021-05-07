@@ -18,7 +18,8 @@ def init_db():
         'User', meta,
         Column('name', String),
         Column('email', String),
-        Column('password', String),
+        # Here I rename the password hashed as hashed_password for better clariy
+        Column('hashed_password', String),
         Column('theme', String),
     )
     meta.create_all(engine)
@@ -41,8 +42,10 @@ class User():
         if mail in users['email'].to_list():
             print('I got the user')
             users = users.set_index('email')
-            password_challenge = users.loc[mail, 'password']
-            if check_password_hash(password_challenge, password):
+            # Here I rename the password hashed as hashed_password for better clariy
+            hashed_password = users.loc[mail, 'hashed_password']
+            # Here I rename the password hashed as hashed_password for better clariy
+            if check_password_hash(hashed_password, password):
                 self.mail = mail
                 self.name = users.loc[mail, 'name']
                 self.theme_name = users.loc[mail, 'theme']
@@ -91,7 +94,7 @@ class User():
     #      active_connection.close()
     #    engine.dispose()
 
-    def add_user(self, name, email, password, theme_name='default'):
+    def add_user(self, name, email, hashed_password, theme_name='default'):
         print("HERE add_user USER")
         ##Now see if we already have the user
         users = self.get_user_table()
@@ -108,9 +111,10 @@ class User():
             ## actually create the connection
             active_connection = engine.connect()
             ## preparing the command
-            column_name = 'email,name,password,theme'
-            # TODO DIRTY Change to orm
-            value = email + '\',\'' + name + '\',\'' + password + '\',\'' + theme_name
+            column_name = 'email,name,hashed_password,theme'
+            # TODO DIRTY - Change to orm
+            # Here I rename the password hashed as hashed_password for better clariy
+            value = email + '\',\'' + name + '\',\'' + hashed_password + '\',\'' + theme_name
             ## A string with the sql command
             command=str('INSERT INTO '+table_name+' ('+column_name+') VALUES (\''+value+'\') ;')
             print(command)
@@ -162,10 +166,11 @@ def signup():
         print(2)
         name = request.form.get('name')
         print(3)
-        password = generate_password_hash(
+        # Here I rename the password hashed as hashed_password for better clariy
+        hashed_password = generate_password_hash(
             request.form.get('password'), method='sha256')
         print(4)
-        if current_user.add_user(name, email, password):
+        if current_user.add_user(name, email, hashed_password):
             print(5)
             return redirect(url_for('profile'))
         else:

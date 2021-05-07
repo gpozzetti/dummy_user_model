@@ -18,8 +18,8 @@ Development environment:
 - to ask the user for his/her birthday
 - to create a countdown again in the profile page
 - bugs and security analyses:
-  * IT security team is scared that this would make us vulnerable to sql injection.
-  * Some of them claim there are bugs when adding users.
+  * IT security team is scared that this would make us vulnerable to sql injection. DONE
+  * Some of them claim there are bugs when adding users. DONE
 ##
 
 # Priorities in order of importance:
@@ -64,6 +64,9 @@ Development environment:
  
  - some "typos-formatting" made the code non PEP-8 and difficult to read.
  
+ ==========
+  SECURITY
+ ==========
  SQL Injections
  --------------
  - I do not like to read the SQL code in such applications:
@@ -81,6 +84,17 @@ Development environment:
  - (!)(!)(!)
   however, building on these bricks, with a more complicated app, we could well imagine that some heavy day we forget the risk and create a 'SELECT * from user WHERE name = 0;DROP TABLE user;' by choosing carefully the name. This would happened by using for example 'cursor=db.cursor()' and 'cursor.executescript(command)' (see my dirty test method test_sql_inj on User class), because we have already made half the trip by choosing to connect to the database the direct way (and not with the ORM for example).
    (!)(!)(!)
+
+Saved login
+-----------
+- There is a "view saved login" on the email textbox, it seems to use the browser lock (Firefox Lockwise):
+   * I have no big experience with such feature in a browser, but I do not like that. Looks like a flaw ...
+   * I recommend rather to use Keepass to store credentials.
+
+Production
+----------
+- For serving ourside of a secured infrastructure, reverse proxy and https/ssl using nginx.
+
  
  Flask app structure
  -------------------
@@ -99,23 +113,29 @@ Development environment:
  Various
  -------
  - I noticed that the init_db is not called with the double brackets.
- - I noticed a url_db parameter making stuff crashing when calling init_db()
- - I noticed the change to database were no persistent: if we restart flask server, the .db file is empty even if we signed up some people in
+ - I noticed a url_db parameter making stuff crashing when calling init_db().
+ - I noticed the change to database were no persistent: if we restart flask server, the .db file is empty even if we signed up some people in.
+   * it was probably due to the init_db bug
 
 ###
 
 ### Definition of functional unit tests
 I did not find the usefulness of configuring a testing framework here, given the small number of features and low time I can allocate.
-Therefore, tests are manual and UI oriented, based on User Stories defined here below. Described as below.
+Therefore, tests are manual and UI oriented, based on *User Stories* defined here below. Described as below.
 
+User stories
+------------
 - signup: As a new user, I can sign-up a new account (new unique name, password robust proposed by the form and easy password allowed, free text available for name). My theme will be the default one by default, I can change it later. I am asked at registration on my Birthday date. After registration, I am redirected to my profile page.
 - login: As a registered user, I can log myself into the system. After a succesful login, I am redirected to my profile page. 
 - logout: As a logged-in user, I can log myself out of the system. I am redirected to the login page.
 - profile printout: As a logged-in user, I can access my profile page. There, I can update the color of my theme by making a choice amongst a list.
-The profile page will show a coountdown.
+The profile page will show a countdown.
 - navigation: As a user, I can navigate through the portal home, login, logout, signup with the navbar upper right.
 - 
 
+===============
+ List of Tests
+===============
 SQL Injection
 -------------
  - Uncomment the line in profile()
@@ -130,6 +150,14 @@ user2
 ced@google.com
 0;DROP TABLE user
 ced
+
+Other tests
+-----------
+user1
+ced@google.com
+ced
+ced
+
 ###
 
 ### How-To-Run

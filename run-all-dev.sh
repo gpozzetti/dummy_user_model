@@ -9,11 +9,14 @@ NC='\033[0m' # No Color
 export FLASK_APP=plain_version
 
 # Dirty Temporary directory for tests
+rm -rf  ./scratch
+mkdir scratch
 . run-sync-scratch.sh
-cd scratch
 
 echo -e "${BLU}Deploying and running Flask app${NC}"
-. run-set-env.sh
+# Execute the deploy script, as a sub-process in another directory
+(cd scratch ; . run-deploy.sh)
+(cd scratch ; . run-set-env.sh)
 
 # Not needed for a simple example
 #echo -e "${BLU}Create database system${NC}"
@@ -31,4 +34,4 @@ echo -e "${BLU}Deploying and running Flask app${NC}"
 
 ########################
 # Launch app
-. run-app.sh
+(cd scratch ; . run-app.sh)
