@@ -15,7 +15,7 @@ Development environment:
 # TODO - 05/05/2021
 - to give the user the possibility of choosing a colour in the profile page
 - to change the theme accordingly
-- to to ask the user for his/her birthday
+- to ask the user for his/her birthday
 - to create a countdown again in the profile page
 - bugs and security analyses:
   * IT security team is scared that this would make us vulnerable to sql injection.
@@ -24,9 +24,9 @@ Development environment:
 
 # Priorities in order of importance:
  - The version is running and existing functionalities are preserved
- - Changes are documented ( git commits quality and comments in the code)
+ - Changes are documented (git commits quality and comments in the code)
  - The  new functionalities (user-customized color, birthday countdown) are implemented
- - Possible security issues  and bugs reported or fixed
+ - Possible security issues and bugs reported or fixed
  - General improvements in the code
 ###
 
@@ -105,6 +105,17 @@ Development environment:
 ###
 
 ### Definition of functional unit tests
+I did not find the usefulness of configuring a testing framework here, given the small number of features and low time I can allocate.
+Therefore, tests are manual and UI oriented, based on User Stories defined here below. Described as below.
+
+- signup: As a new user, I can sign-up a new account (new unique name, password robust proposed by the form and easy password allowed, free text available for name). My theme will be the default one by default, I can change it later. I am asked at registration on my Birthday date. After registration, I am redirected to my profile page.
+- login: As a registered user, I can log myself into the system. After a succesful login, I am redirected to my profile page. 
+- logout: As a logged-in user, I can log myself out of the system. I am redirected to the login page.
+- profile printout: As a logged-in user, I can access my profile page. There, I can update the color of my theme by making a choice amongst a list.
+The profile page will show a coountdown.
+- navigation: As a user, I can navigate through the portal home, login, logout, signup with the navbar upper right.
+- 
+
 SQL Injection
 -------------
  - Uncomment the line in profile()

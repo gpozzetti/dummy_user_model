@@ -18,7 +18,8 @@ def init_db():
         'User', meta,
         Column('name', String),
         Column('email', String),
-        Column('password', String)
+        Column('password', String),
+        Column('theme', String),
     )
     meta.create_all(engine)
 
@@ -31,6 +32,7 @@ class User():
         self.logged_in = False
         self.name = None
         self.mail = None
+        self.theme_name = None
 
     def log_in(self, mail, password):
         print("HERE LOGIN USER")
@@ -43,6 +45,7 @@ class User():
             if check_password_hash(password_challenge, password):
                 self.mail = mail
                 self.name = users.loc[mail, 'name']
+                self.theme_name = users.loc[mail, 'theme']
                 self.logged_in = True
 
         return self.logged_in
@@ -70,23 +73,25 @@ class User():
         engine.dispose()
         return users_table
 
-    def test_sql_inj(self):
+    # !!! Do not uncomment unless you want to see the sql injection demo !!!
+    # SQL injection dirty test
+    #def test_sql_inj(self):
         # SQL injection dirty test
-        pandas_test = False
-        connection_path = self.db_path
-        engine = create_engine(connection_path)
-        active_connection = engine.raw_connection()
-        cursor = active_connection.cursor()
-        command=str('SELECT * from user WHERE name = ' + self.name + ';')
-        print(command)
-        if pandas_test==True:
-          pd.read_sql(command, con=engine)
-        else:
-          cursor.executescript(command)
-          active_connection.close()
-        engine.dispose()
+    #    pandas_test = False
+    #    connection_path = self.db_path
+    #    engine = create_engine(connection_path)
+    #    active_connection = engine.raw_connection()
+    #    cursor = active_connection.cursor()
+    #    command=str('SELECT * from user WHERE name = ' + self.name + ';')
+    #    print(command)
+    #    if pandas_test==True:
+    #      pd.read_sql(command, con=engine)
+    #    else:
+    #      cursor.executescript(command)
+    #      active_connection.close()
+    #    engine.dispose()
 
-    def add_user(self, name, email, password):
+    def add_user(self, name, email, password, theme_name='default'):
         print("HERE add_user USER")
         ##Now see if we already have the user
         users = self.get_user_table()
@@ -103,9 +108,9 @@ class User():
             ## actually create the connection
             active_connection = engine.connect()
             ## preparing the command
-            column_name = 'email,name,password'
+            column_name = 'email,name,password,theme'
             # TODO DIRTY Change to orm
-            value = email + '\',\'' + name + '\',\'' + password
+            value = email + '\',\'' + name + '\',\'' + password + '\',\'' + theme_name
             ## A string with the sql command
             command=str('INSERT INTO '+table_name+' ('+column_name+') VALUES (\''+value+'\') ;')
             print(command)
@@ -119,6 +124,7 @@ class User():
             self.name = name
             self.email = email
             self.logged_in = True
+            self.theme_name = theme_name
             return True
         ## if an user with this email is already there return false
         else:
@@ -200,10 +206,12 @@ def profile():
     print("HERE PROFILE")
     if current_user.logged_in:
         name = current_user.name
+        theme_name = current_user.theme_name
+        # !!! Do not uncomment unless you want to see the sql injection demo !!!
         # SQL injection dirty test
-        current_user.test_sql_inj()
+        #current_user.test_sql_inj()
 
-        return render_template('profile.html', name=name)
+        return render_template('profile.html', name=name, theme_name=theme_name)
     else:
         return redirect(url_for('login'))
 
