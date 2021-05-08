@@ -155,8 +155,12 @@ class User():
             # Comment only for challenge: Here I rename the password hashed as hashed_password for better clariy
             # Comment only for challenge: And rename command to sql_command: no need to comment then :)
             table_name = self.table_name
-            values = email + '\',\'' + name + '\',\'' + hashed_password + '\',\'' + theme_name + '\',\'' + str(next_birthday)
-            sql_command=str('INSERT INTO '+table_name+' ('+column_name+') VALUES (\''+values+'\') ;')
+            values = email + '\',\'' + name + '\',\'' + hashed_password
+            values += '\',\'' + theme_name + '\',\'' + str(next_birthday)
+            values = str(values)
+            sql_command = 'INSERT INTO '+table_name
+            sql_command += ' ('+column_name+') VALUES (\''+values+'\') ;'
+            sql_command = str(sql_command)
 
             ## execute SQL query
             active_connection.execute(sql_command)
@@ -200,7 +204,10 @@ class User():
         # Comment only for challenge: And rename command to sql_command: no need to comment then :)
         table_name = self.table_name
         values = theme_name + '\',\'' + str(next_birthday)
-        sql_command=str('UPDATE '+table_name+' SET ('+column_name+') = (\''+values+'\') WHERE email =\''+current_user.email+'\';')
+        sql_command = 'UPDATE '+table_name+' SET ('+column_name
+        sql_command += ') = (\''+values+'\') WHERE email =\''
+        sql_command += current_user.email+'\';'
+        sql_command = str(sql_command)
 
         ## actually adding it
         active_connection.execute(sql_command)
@@ -339,5 +346,5 @@ def profile():
 ## TODO Investigate why main app, routes and data models are not decoupled
 if __name__ == "__main__":
     #app=create_app()
-    print("HERE MAIN")
+
     app.run()
