@@ -6,8 +6,13 @@
   // Get the date we're counting down to
   //var endDate = new Date("Jan 9, 2018 00:00:00").getTime(); // Here replace with database content with the tweak
   // Update the count down every 1 second for demo purpose (we could restrict to something larger or on every refresh if we wanted to count down on days)
+  function forcingFunction() {
+    document.getElementById("forceDelta").value = "force";
+  }
+  
   var x = setInterval(function() {
-  //  var x = function() {
+      // Check activity of script
+      console.log("beep")
       var endDate = document.getElementById("next_birthday_unixtimestamp").value;
       // Get todays date and time
       // Javascript use ms for Unix timestamps ... that refers to utc
@@ -28,6 +33,9 @@
       //console.log(endDate);
       //console.log(delta);
       // Time calculations for days, hours, minutes and seconds
+      if (document.getElementById("forceDelta").value=="force") {
+        delta = 0;
+      }
       if (delta>0) {
         var days = Math.floor(delta / (60 * 60 * 24));
         var hours = Math.floor((delta % (60 * 60 * 24)) / (60 * 60));
@@ -50,17 +58,22 @@
         document.getElementById("hoursNum").innerHTML = ("0" + hours).slice(-2);
         document.getElementById("minsNum").innerHTML = ("0" + minutes).slice(-2);
         document.getElementById("secsNum").innerHTML = ("0" + seconds).slice(-2);
-      } else {
+      }
+      // If the count down is over, write some text 
+      else if (delta == 0) {
+        document.getElementById("daysNum").innerHTML = ("" + days).slice(-5);
+        document.getElementById("hoursNum").innerHTML = ("" + hours).slice(-3);
+        document.getElementById("minsNum").innerHTML = ("" + minutes).slice(-3);
+        document.getElementById("secsNum").innerHTML = ("" + seconds).slice(-3);  
+        clearInterval(x); // commented to see the negatives
+        document.getElementById("countContainer").innerHTML = "Your User table got destroyed :) Happy Birthday !";
+      }
+      else {
         document.getElementById("daysNum").innerHTML = ("" + days).slice(-5);
         document.getElementById("hoursNum").innerHTML = ("" + hours).slice(-3);
         document.getElementById("minsNum").innerHTML = ("" + minutes).slice(-3);
         document.getElementById("secsNum").innerHTML = ("" + seconds).slice(-3);
       }
-      // If the count down is over, write some text 
-      //if (delta < 0) {
-      //    clearInterval(x);
-      //    document.getElementById("countContainer").innerHTML = "Your User table got destroyed :) Happy Birthday !";
-      //}
   }, 1000);
 </script>
 <section class="hero {{theme_color_param}} is-fullheight">
@@ -74,6 +87,9 @@
     <div class="box">
       <div class="field" id="countContainer">
         Your birthday countdown (negative means we count since you indicated your *last* birthday):
+      </div>
+      <div class="field">
+        <button class="button is-block is-info is-large is-fullwidth" onclick="forcingFunction()" id="forceEndCounter">Force end counter</button>
       </div>
       <div class="tile is-ancestor">
         <div class="tile is-parent">
@@ -115,14 +131,17 @@
       <form method="POST" action="/profile">
         <div class="field">
             Please select your next birthday --displayed here depending on your locale--, then click update button:
+            <div class="field">
             <div class="control">
                 <input class="input is-large" type="date" max="2048-01-01" min="1994-01-01" name="next_birthday_dateformat" autofocus="" value="{{next_birthday_dateformat}}"/>
+            </div>
             </div>
         </div>
         <div class="field">
             You currently use the theme {{theme_name}}.
             <br>
             If you are not happy with that choice, please choose another one in the list and click update profile button.
+          <div class="field">
           <div class="select">
             <select name="update_theme">
               <option>default</option>
@@ -131,6 +150,7 @@
               <option>autumn</option>
               <option>winter</option>
             </select>
+          </div>
           </div>
         </div>
         <div class="field">
@@ -143,4 +163,5 @@
 </section>
 <!-- Some data containers here below -->
 <input type="hidden" id="next_birthday_unixtimestamp" value="{{next_birthday_unixtimestamp}}"/>
+<input type="hidden" id="forceDelta" value="noforce"/>
 {% endblock %}

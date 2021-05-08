@@ -222,7 +222,22 @@ ced
 
 ### Way forward - next improvements
   - demo
+  - change structure to separate data models, app and routes
+  - session timout
+  - checking cookie security
+  - mentionning why we remove remember me
+  - understanding this popup with saved password 
+  -----------------------------------------------------------
   - automatize unitary functional tests and integration tests
   - conduct UATs
+  - improve versatility and modularity:
+    * create the application factory
+    * use blueprints for modules
+    * include the migrate feature for databases
+  - industrialize the application for production:
+    * separate completely frontend to serve a single page application using vueJs or react frameworks for example
+      x write the API contract for the backend and implement it
+    * dockerize ?
+    * use a production webserver like nginx, that would proxie request to a Web Server Gateway Interface (WSGI) like gunicorn which then call Flask app code and finally returns the response.
   - TODO
 ###
