@@ -1,3 +1,11 @@
+"""
+This is a helper module:
+ - wrapper to assign theme names to CSS style parameters
+ - wrapper to deal with dates 
+
+.. moduleauthor:: Cedric Renzi
+"""
+
 from datetime import datetime
 
 def set_color_name(theme_name):

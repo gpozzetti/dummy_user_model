@@ -1,3 +1,12 @@
+"""
+This is a small web portal, leading to customisable profile
+A new user can sign-up, a registered user can log-in, access its profile, touch it up by providing its birthday
+or changing the theme color of its profile page.
+A logged-in user can log-out.
+
+.. moduleauthor:: Cedric Renzi
+"""
+
 from flask import Flask,flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_session import Session
@@ -17,6 +26,10 @@ db = SQLAlchemy()
 
 ## TODO I would rather use the flask db init command and the ORM
 def init_db():
+    """
+    A helper for initializing an empty databasem with a table 'user' and
+    the correct field names as columns
+    """
     engine = create_engine('sqlite:///DB.db', echo=True)
     meta = MetaData()
     user_table = Table(
@@ -35,9 +48,21 @@ def init_db():
 # It looks very complicated on the usage, while flask-alchemy, that we import here, is meant to make stuff
 # much more pythonic
 class User():
+    """
+    The class User defines the data model on top of a user object
+    SQL table name: 'user'
+    Database object SQLAlchemy instance: db
+
+         Fields:
+              name         : name of user
+              email        : email of user (login), enforced unique by the logics of the rest of the code
+              theme_name   : name of the chosen theme by the user, for its profile page
+              next_birthday: supposed to be next_birthday date (occurs at midnight, local time on frontend)
+              logged-in    : current status of login
+    """
     ## Linking to the database
     def __init__(self, db):
-        print("HERE INIT USER")
+        """ Initialize object instance """
         # Comment only for challenge: I prefer to have it here, looks like more mimicking an actual data model of an ORM :)
         ## define the name of the table in the database (the lowercase apparently required by postgrade)
         ## DB nuts and bolts
@@ -56,6 +81,7 @@ class User():
 
     # Comment only for challenge: Renamed here to email to keep name-consistency with actual DB
     def log_in(self, email, password):
+        """ Authenticate a user, from a "email" and a "password" """
         ## Authenticate the user or reject him (exist ? correct password ?)
         users = self.get_user_table()
         if email in users['email'].to_list():
@@ -73,6 +99,7 @@ class User():
         return self.logged_in
 
     def logout(self):
+        """ Log-out a user """
         self.email = None
         self.name = None
         self.theme_name = None
@@ -80,6 +107,7 @@ class User():
         self.logged_in = False
 
     def get_user_table(self):
+        """ A getter to retrieve "user" table content """
         result = False
         ## Opening and closing a db connection to register the search
         # Comment only for challenge: given the name of the helper, the above comment could be suppressed
@@ -125,6 +153,11 @@ class User():
     #    engine.dispose()
 
     def add_user(self, name, email, hashed_password, theme_name='default'):
+        """
+        Add a new user, from a "email", "name", "hashed-password" and a "theme_name=default"
+        Before creating the new object and committing it to database, it checked that a similar user
+        does not already exist (no identical emails can coexist)
+        """
         ## we return False if an user with this email is already there return false
         ## or if something bad occured with database connection
         # (TODO improvement would be based on Exception forwarding to make a distinction)
@@ -187,6 +220,10 @@ class User():
 
     # This to update user data: next_birthday_date and preference for theme
     def update_user(self, theme_name, next_birthday):
+        """
+        Update user data, with a "theme_name" for chosing its color and "next_birthday"
+        for storing its birthday data and feed-in the frontend counter
+        """
         result = False
 
         next_birthday = calculate_unix_timestamp(date_to_process=next_birthday)
@@ -224,6 +261,7 @@ class User():
     # Helper functions
     def manage_db_engine(self, active_connection=None, engine=None,
         mode='create_connect'):
+        """ A Database connector helper"""
         # Result is a tuple that provide insights into the status of the action performed on (engine, connection)
         # If exception occured or bad mode requested, tuple is returned as (False, False)
         result = (False, False)
