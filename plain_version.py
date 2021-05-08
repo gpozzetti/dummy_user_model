@@ -8,6 +8,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import create_engine, Column, MetaData
 from sqlalchemy import Table, DateTime, String, Integer
 import pandas as pd
+
+from helpers import set_color_name
+
 # init SQLAlchemy so we can use it later in our models
 db = SQLAlchemy()
 
@@ -361,13 +364,16 @@ def profile():
         print(next_birthday)
         print(next_birthday_dateformat)
         
+        theme_color_param = set_color_name(theme_name)
+
         # !!! Do not uncomment unless you want to see the sql injection demo !!!
         # SQL injection dirty test
         #current_user.test_sql_inj()
 
         return render_template('profile.html', name=name,
             theme_name=theme_name, next_birthday_unixtimestamp=next_birthday,
-            next_birthday_dateformat=next_birthday_dateformat)
+            next_birthday_dateformat=next_birthday_dateformat,
+            theme_color_param=theme_color_param)
     else:
         return redirect(url_for('login'))
 
