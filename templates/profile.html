@@ -28,7 +28,7 @@
       //console.log(endDate);
       //console.log(delta);
       // Time calculations for days, hours, minutes and seconds
-      if (delta>=0) {
+      if (delta>0) {
         var days = Math.floor(delta / (60 * 60 * 24));
         var hours = Math.floor((delta % (60 * 60 * 24)) / (60 * 60));
         var minutes = Math.floor((delta % (60 * 60)) / (60));
@@ -45,15 +45,15 @@
       console.log(minutes)
       console.log(seconds)
       // Output the result in elements with id="cdHour/cdMin/cdSec"
-      if (delta>=0) {
+      if (delta>0) {
         document.getElementById("daysNum").innerHTML = ("0" + days).slice(-4); // force conversion to string
         document.getElementById("hoursNum").innerHTML = ("0" + hours).slice(-2);
         document.getElementById("minsNum").innerHTML = ("0" + minutes).slice(-2);
         document.getElementById("secsNum").innerHTML = ("0" + seconds).slice(-2);
       } else {
         document.getElementById("daysNum").innerHTML = ("" + days).slice(-5);
-        document.getElementById("hoursNum").innerHTML = ("0" + hours).slice(-3);
-        document.getElementById("minsNum").innerHTML = ("0" + minutes).slice(-3);
+        document.getElementById("hoursNum").innerHTML = ("" + hours).slice(-3);
+        document.getElementById("minsNum").innerHTML = ("" + minutes).slice(-3);
         document.getElementById("secsNum").innerHTML = ("" + seconds).slice(-3);
       }
       // If the count down is over, write some text 
