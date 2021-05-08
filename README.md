@@ -197,31 +197,64 @@ The profile page will show a countdown.
 ===============
  List of Tests
 ===============
+Generic users for tests
+-----------------------
+ - follow procedure in how-to run to deploy the app in ./scratch or run it again from a previous deployment
+ - browse to localhost:5000
+ - click on sign-up in navbar, with credentials:
+   email   : user1-test@test.com
+   name    : user1-test
+   password: user1-test
+   -> should arrive on profile page, default theme, counter starting as of now
+ - click on sign-up in navbar, with credentials:
+   email   : user2-test@test.com
+   name    : user2-test
+   password: user2-test
+   -> should redirect to profile page, default theme, counter starting as of now
+ - click on logout
+   -> should go back to login page
+ - click on login
+   * log user1-test@test.com in
+   -> should redirect to profile page, default theme, counter continuing to count from user creation
+   * change theme to something else
+   * define the date of your next birthday date
+   * click on update profile
+   * theme color should change
+   * counter should indicate the time until your birthday
+ - click on logout
+ - click on login
+   * log user2-test@test.com in
+   -> theme is stil default and counter continuing to count from user creation (change on user1 are not impacting user2)
+ - click on logout
+ - click on login
+   * log user1-test@test.com in
+   * theme change has been saved
+   * counter should indicate the time until your birthday
+   * click on force end counter
+   -> you should receive your surprise
+
 SQL Injection
 -------------
- - Uncomment the line in profile()
- - Create the user in the order below (table will be dropped, while it contained both user at some time)
-credentials for tests:
-user1
-ced2@google.com
-0
-ced
+ - close the flask-app server (Ctrl+C) if it was running
+ - database must not be empty to be able to test
+ - uncomment the lines related to sql injection (look for comment "")
+ - rsync the software package to ./scratch and relaunch the app using following the how-to-run procedure
+ - browse to localhost:5000
+ - for the demo to work, do not try to do anmything else but create a new hack user (table will be dropped, while it contained all users before this last user add) with information:
+   email   : do-not-do-this@test-sql.com
+   name    : 0;DROP TABLE user
+   password: test
+   -> you are redirect to profile, as if everything was ok
+   -> however, if you try to update profile, you end up on an error
+   -> you discover also that you cannot logout or login or signup
+   -> user table has been dropped during some weird request activated in profile() based on a select from this weird user name
 
-user2
-ced@google.com
-0;DROP TABLE user
-ced
-
-Other tests
------------
-user1
-ced@google.com
-ced
-ced
 ###
 
 ### Way forward - next improvements
   - demo
+  - when already logged in as user 1, if I try to login on user2, and I fail password, I end up again on user1 profile
+  - understanding the problem of 2h offset at init
   - change structure to separate data models, app and routes
   - session timout
   - checking cookie security

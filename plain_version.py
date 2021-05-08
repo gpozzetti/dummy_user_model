@@ -137,7 +137,6 @@ class User():
     # !!! Do not uncomment unless you want to see the sql injection demo !!!
     # SQL injection dirty test
     #def test_sql_inj(self):
-        # SQL injection dirty test
     #    pandas_test = False
     #    connection_path = self.db_path
     #    engine = create_engine(connection_path)
