@@ -11,15 +11,61 @@ Development environment:
    * some adaptation may be required for running on macOs (bash -> zsh ?)
    * not tested on a pure Windows environment
 
+### How-To-Run - Modified version as of 09/05/2021
+ - Prerequisites before running the bash scripts:
+  * python3
+  * pip3
+  * virtualenv3
+
+ - Development version
+ We make an extensive usage of bash script.
+  * clone the repository in a local directory named afterwards $APPDIR
+  * cd to $APPDIR
+  * run the following scripts depending on your usage:
+    o deployment: ./run-all-dev.sh
+      (!!!!!!!!) it will erase any previous ./scratch directory (!!!!!!!!)
+      x it will create a new ./scratch directory
+      x it will setup a python3 virtual environment in ./scratch
+      x it will install requirements.txt packages in env subdirectory of ./scratch
+      x it will copy essential software package files to ./scratch
+      x it will run the ./run-app.sh script inside of ./scratch, this will launch the Flask development server
+      x press Ctrl+C to kill the server
+
+    o launching again the app:
+      x cd ./scratch
+      x ./run-app.sh, this will launch the Flask development server
+      x press Ctrl+C to kill the server
+
+    o setting up a local virtual environment with requirements.txt packaches in env subdirectory of $APPDIR (for coding and having access to APIs doc for eg.)
+      x cd to $APPDIR
+      x ./run-set-env.sh that will setup a python3 virtual environment in $APPDIR
+      x it will install requirements.txt packages in env subdirectory of $APPDIR
+    
+    o rsync new files to ./scratch (without needing to setup again a virtual environment or to delete current database):
+      x ./run-rsync-scratch.sh
+    
+    o run automatic unitary tests:
+      x ./run-tests.sh
+      x NOT IMPLEMENTED YET (just the nose2 framework is configured)
+      x see section "### Definition of functional unit tests" to see which manual tests we prefered to do for a small project like this
+  
+ - Staging
+ [nc]
+ - Production
+ [nc]
+###
+https://github.com/cedric2080
+### END
+
 ### Challenge
 # TODO - 05/05/2021
-- to give the user the possibility of choosing a colour in the profile page
-- to change the theme accordingly
-- to ask the user for his/her birthday
-- to create a countdown again in the profile page
+- to give the user the possibility of choosing a colour in the profile page *DONE*
+- to change the theme accordingly *DONE*
+- to ask the user for his/her birthday *DONE*
+- to create a countdown again in the profile page *DONE*
 - bugs and security analyses:
-  * IT security team is scared that this would make us vulnerable to sql injection. DONE
-  * Some of them claim there are bugs when adding users. DONE
+  * IT security team is scared that this would make us vulnerable to sql injection. *DONE*
+  * Some of them claim there are bugs when adding users. *DONE*
 ##
 
 # Priorities in order of importance:
@@ -49,7 +95,7 @@ Development environment:
     * after solving the init_db bug, I could correctly sign-up an account
 ###
 
-### Critics and room for improvements
+### Critics of the plain original version and room for improvements
  Project
  -------
  - I see no README.MD on the project. Therefore, I am not sure how to launch properly the app.
@@ -119,6 +165,21 @@ Production
 
 ###
 
+### Description of the new features
+ - profile color:
+   * we allow the user to select in between 4 different themes, additionnaly to the default one which is common to the rest of the website
+   * the color is applied on the background of the block defined in profile page. we keep the outter-border common to the rest of the website
+ - birthday:
+   * interpreted here as the next birthday date in the year and the following year.
+   * however, it is given the possibility to the user to choose anydate 27 years later the current time.
+   * we also allow the user to select a date in the past, to play a bit with negative numbers ... or to count the number of days, hours, minutes, seconds passed since last birthday. Again, limited to -27 years -> if a user put a date exactly at the limit and connect even 1 or 2 days later, the countdown may show strange behavior. however, negative numbers are here just to play a bit with javascript
+   * as we speak of birthday, as any children, we consider that gifts are due in the leap second after midnight on the actual birthday :)
+   * it is initialised at the date-time of creation of user. Indeed, we consider that the birtday is too personal data to be exposed on sign-up. We added a consent for this data.
+ - countdown:
+   * the countdown calculate the number of days, hours, minutes, seconds separated by current time and the date of the birthday.
+   * despite all datetimes are calculated in utc in the backend, the countdown of the frontend performs the offset depending on the locales of the user.
+###
+
 ### Definition of functional unit tests
 I did not find the usefulness of configuring a testing framework here, given the small number of features and low time I can allocate.
 Therefore, tests are manual and UI oriented, based on *User Stories* defined here below. Described as below.
@@ -157,17 +218,11 @@ user1
 ced@google.com
 ced
 ced
-
 ###
 
-### How-To-Run
- - Development version
-  * 
-  
- - Staging
- [nc]
- - Production
- [nc]
+### Way forward - next improvements
+  - demo
+  - automatize unitary functional tests and integration tests
+  - conduct UATs
+  - TODO
 ###
-https://github.com/cedric2080
-### END
