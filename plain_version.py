@@ -1,7 +1,3 @@
-
-
-from datetime import datetime
-
 from flask import Flask,flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_session import Session
@@ -14,6 +10,7 @@ from sqlalchemy import Table, DateTime, String, Integer
 import pandas as pd
 
 from helpers import set_color_name, calculate_unix_timestamp
+from helpers import format_date_string_ymd, create_date_from_timestamp
 
 # init SQLAlchemy so we can use it later in our models
 db = SQLAlchemy()
@@ -311,8 +308,7 @@ def profile():
         if request.method=='POST':
             # Currently, the hours default at 00:00:00
             update_next_birthday = request.form.get('next_birthday_dateformat')
-            update_next_birthday = datetime.strptime(
-                update_next_birthday, '%Y-%m-%d')
+            update_next_birthday = format_date_string_ymd(update_next_birthday)
             update_theme = request.form.get('update_theme')
             # Convert to UTC
             # Update current user / check it is saved in database
@@ -326,7 +322,7 @@ def profile():
         # Conversion to format "YYYY-MM-DD"
         # Because of input type=date on html
         # https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/date
-        next_birthday_dateformat = datetime.fromtimestamp(next_birthday).date()
+        next_birthday_dateformat = create_date_from_timestamp(next_birthday)
         
         theme_color_param = set_color_name(theme_name)
 
@@ -346,5 +342,4 @@ def profile():
 ## TODO Investigate why main app, routes and data models are not decoupled
 if __name__ == "__main__":
     #app=create_app()
-
     app.run()

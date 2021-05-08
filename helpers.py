@@ -18,3 +18,9 @@ def calculate_unix_timestamp(date_to_process=datetime.utcnow()):
     epoch = datetime(1970,1,1)
     date_timestamp = (date_to_process - epoch).total_seconds()
     return int(date_timestamp)
+
+def format_date_string_ymd(date):
+    return datetime.strptime(date, '%Y-%m-%d')
+
+def create_date_from_timestamp(date):
+    return datetime.fromtimestamp(date).date()
