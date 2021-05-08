@@ -33,29 +33,38 @@ class User():
     ## Linking to the database
     def __init__(self, db):
         print("HERE INIT USER")
+        # I prefer to have it here, looks like more mimicking an actual data model of an ORM :)
+        ## define the name of the table in the database (the lowercase apparently required by postgrade)
+        ## DB nuts and bolts
+        self.table_name = 'user'
         self.db_path = db
-        self.logged_in = False
+        ## Profile data
         self.name = None
-        self.mail = None
+        # Comment only for challenge: Renamed here to email to keep name-consistency with actual DB
+        self.email = None
         self.theme_name = None
-        self.birthday = None
+        # At init, the date and hour default to the day and hour when user is added
+        self.next_birthday = None
+        ## Status
+        self.logged_in = False
 
-    def log_in(self, mail, password):
+    # Comment only for challenge: Renamed here to email to keep name-consistency with actual DB
+    def log_in(self, email, password):
         print("HERE LOGIN USER")
         ## Check if user exists, and has the password
         users = self.get_user_table()
-        if mail in users['email'].to_list():
+        if email in users['email'].to_list():
             print('I got the user')
             users = users.set_index('email')
             # Here I rename the password hashed as hashed_password for better clariy
-            hashed_password = users.loc[mail, 'hashed_password']
+            hashed_password = users.loc[email, 'hashed_password']
             # Here I rename the password hashed as hashed_password for better clariy
             if check_password_hash(hashed_password, password):
-                self.mail = mail
-                self.name = users.loc[mail, 'name']
-                self.theme_name = users.loc[mail, 'theme']
+                self.email = email
+                self.name = users.loc[email, 'name']
+                self.theme_name = users.loc[email, 'theme']
+                self.next_birthday = users.loc[email, 'next_birthday']
                 self.logged_in = True
-                self.next_birthday = users.loc[mail, 'next_birthday']
 
         return self.logged_in
 
@@ -63,23 +72,39 @@ class User():
         print("HERE LOGOUT USER")
         self.logged_in = False
         self.name = None
-        self.mail = None
-
+        self.email = None
+        self.theme_name = None
+        self.next_birthday = None
 
     def get_user_table(self):
+        result = False
         print("HERE get_user_table USER")
         ## Opening and closing a connection to register the search
-        connection_path = self.db_path
+        #connection_path = self.db_path
         ## create an engine to test the database
-        engine = create_engine(connection_path)
+        #engine = create_engine(connection_path)
+        (engine, active_connection) = self.manage_db_engine(
+            mode='create_connect')
+        if engine == False or active_connection == False:
+            return result
+
         ## define the name of the table in the database (the lowercase apparently required by postgrade)
-        table_name = 'user'
+        table_name = self.table_name
         
-        # TODO DIRTY Change to orm
-        users_table = pd.read_sql(str('SELECT * from '+table_name), con=engine)
+        # TODO ORIGINAL DIRTY Change to orm
+        try:
+            users_table = pd.read_sql(str('SELECT * from '+table_name), con=engine)
+        except:
+            return result
 
         ## killing the connection
-        engine.dispose()
+        #engine.dispose()
+
+        (engine, active_connection) = self.manage_db_engine(engine=engine,
+                active_connection=active_connection, mode='kill')
+        if engine == False or active_connection == False:
+            return result
+
         return users_table
 
     # !!! Do not uncomment unless you want to see the sql injection demo !!!
@@ -102,6 +127,10 @@ class User():
 
     def add_user(self, name, email, hashed_password, theme_name='default',
         next_birthday=datetime.utcnow()):
+        ## we return False if an user with this email is already there return false
+        ## or if something bad occured with database connection
+        # (TODO improvement would be based on Exception forwarding to make a distinction)
+        result = False
         print("HERE add_user USER")
         epoch = datetime(1970,1,1)
         next_birthday = (next_birthday - epoch).total_seconds()
@@ -110,46 +139,130 @@ class User():
         users = self.get_user_table()
 
         ## If we don't find an user with this email
+        # Comment only for challenge: I simplified the if with a standard best practice on the return
         if users[users['email']==email].empty:
             ## Opening and closing a connection to register the search
-            connection_path = self.db_path
+            #connection_path = self.db_path
             ## create an engine to test the database
-            engine = create_engine(connection_path)
+            #engine = create_engine(connection_path)
             ## define the name of the table in the database (the lowercase apparently required by postgrade)
-            table_name = 'user'
+            #table_name = 'user'
 
             ## actually create the connection
-            active_connection = engine.connect()
-            ## preparing the command
+            #active_connection = engine.connect()
+            # Comment only for challenge: Take advantage of a helper function as with the direct approach we took for
+            # db management, some repetition appears in the establishments, deletions of connections
+            (engine, active_connection) = self.manage_db_engine(
+                mode='create_connect')
+            if engine == False or active_connection == False:
+                return result
+            
+            ## preparing the sql_command
             column_name = 'email,name,hashed_password,theme,next_birthday'
-            # TODO DIRTY - Change to orm
-            # Here I rename the password hashed as hashed_password for better clariy
-            value = email + '\',\'' + name + '\',\'' + hashed_password + '\',\'' + theme_name + '\',\'' + str(next_birthday)
-            ## A string with the sql command
-            command=str('INSERT INTO '+table_name+' ('+column_name+') VALUES (\''+value+'\') ;')
-            print(command)
+            # TODO original DIRTY - Change to orm
+            # Comment only for challenge: Here I rename the password hashed as hashed_password for better clariy
+            # Comment only for challenge: And rename command to sql_command: no need to comment then :)
+            table_name = self.table_name
+            values = email + '\',\'' + name + '\',\'' + hashed_password + '\',\'' + theme_name + '\',\'' + str(next_birthday)
+            sql_command=str('INSERT INTO '+table_name+' ('+column_name+') VALUES (\''+values+'\') ;')
+            print(sql_command)
+
             ## actually adding it
-            active_connection.execute(command)
-            active_connection.close()
+            active_connection.execute(sql_command)
+            
+            (engine, active_connection) = self.manage_db_engine(engine=engine,
+                active_connection=active_connection, mode='kill')
+            if engine == False or active_connection == False:
+                return result
+            #active_connection.close()
             ## killing the connection
-            engine.dispose()
+            #engine.dispose()
 
             ## log  in with the current credentials
             self.name = name
             self.email = email
-            self.logged_in = True
             self.theme_name = theme_name
             self.next_birthday = next_birthday
+            self.logged_in = True
             print(self.next_birthday)
-            return True
-        ## if an user with this email is already there return false
-        else:
-            return False
+            ## Reaching this point is the only case when we return a True
+            result = True
+        return result
+
         # TODO check why indentation here. I see no reason why this should be like this
         # This function being not called, I see no reason for encapsulation
         def get_models(self):
             if self.logged_in:
                 print('Accessing priviledge accounts')
+
+    # This to update user data: next_birthday_date and preference for theme
+    def update_user(self, theme_name, next_birthday):
+        result = False
+        print("HERE update_user USER")
+        epoch = datetime(1970,1,1)
+        print(epoch)
+        print(next_birthday)
+        next_birthday = (next_birthday - epoch).total_seconds()
+        next_birthday = int(next_birthday)
+        print(next_birthday)
+
+        (engine, active_connection) = self.manage_db_engine(
+            mode='create_connect')
+
+        ## preparing the sql_command
+        column_name = 'theme,next_birthday'
+        # TODO original DIRTY - Change to orm
+        # Comment only for challenge: Here I rename the password hashed as hashed_password for better clariy
+        # Comment only for challenge: And rename command to sql_command: no need to comment then :)
+        table_name = self.table_name
+        values = theme_name + '\',\'' + str(next_birthday)
+        sql_command=str('UPDATE '+table_name+' SET ('+column_name+') = (\''+values+'\') WHERE email =\''+current_user.email+'\';')
+        print(sql_command)
+
+        ## actually adding it
+        active_connection.execute(sql_command)
+
+        (engine, active_connection) = self.manage_db_engine(engine=engine,
+            active_connection=active_connection, mode='kill')
+        if engine == False or active_connection == False:
+            return result
+        
+        # update current_user to keep consistency with database content
+        self.theme_name = theme_name
+        self.next_birthday = next_birthday
+
+        result = True
+        return result
+
+    # Helper functions
+    def manage_db_engine(self, active_connection=None, engine=None,
+        mode='create_connect'):
+        # Result is a tuple that provide insights into the status of the action performed on (engine, connection)
+        # If exception occured or bad mode requested, tuple is returned as (False, False)
+        result = (False, False)
+        # TODO Should think of forwarding Exception here to make more proper
+        # but I need a beer now, it is Week-end grillfest :|       
+        ## killing the connection
+        if mode == 'kill':
+            try:
+                active_connection.close()
+                engine.dispose()
+            except:
+                return result
+            result = (True, True)
+        
+        ## creating engine and actual connection
+        if mode == 'create_connect':
+            connection_path = self.db_path
+            try:
+                engine = create_engine(connection_path)
+                active_connection = engine.connect()
+            except:
+                return result
+            result = (engine, active_connection)
+        
+        return result
+
 
 ## Configuring the app
 app = Flask(__name__,static_url_path='/')
@@ -223,24 +336,38 @@ def profile():
     print("HERE PROFILE")
     if current_user.logged_in:
         if request.method=='POST':
-            update_next_birthday = request.form.get('update_next_birthday')
+            # Currently, the hours default at 00:00:00
+            update_next_birthday = request.form.get('next_birthday_dateformat')
+            update_next_birthday = datetime.strptime(
+                update_next_birthday, '%Y-%m-%d')
             update_theme = request.form.get('update_theme')
             # Convert to UTC
             # Update current user / check it is saved in database
             # then the next render shall be correct
+            print("HERE UPDATE")
             print(update_next_birthday)
             print(update_theme)
+            current_user.update_user(theme_name=update_theme,
+                                     next_birthday=update_next_birthday)
             
         name = current_user.name
         theme_name = current_user.theme_name
         next_birthday = current_user.next_birthday
+        # Conversion to format "YYYY-MM-DD"
+        # Because of input type=date on html
+        # https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/date
+        next_birthday_dateformat = datetime.fromtimestamp(next_birthday).date()
+        print("HERE RENDER")
+        print(next_birthday)
+        print(next_birthday_dateformat)
         
         # !!! Do not uncomment unless you want to see the sql injection demo !!!
         # SQL injection dirty test
         #current_user.test_sql_inj()
 
         return render_template('profile.html', name=name,
-            theme_name=theme_name, next_birthday=next_birthday)
+            theme_name=theme_name, next_birthday_unixtimestamp=next_birthday,
+            next_birthday_dateformat=next_birthday_dateformat)
     else:
         return redirect(url_for('login'))
 
