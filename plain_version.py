@@ -1,9 +1,12 @@
+from datetime import datetime
+
 from flask import Flask,flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_session import Session
 from flask import Blueprint, render_template, redirect, url_for,request
 from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy import create_engine, Table, Integer, String, Column, MetaData
+from sqlalchemy import create_engine, Column, MetaData
+from sqlalchemy import Table, DateTime, String, Integer
 import pandas as pd
 # init SQLAlchemy so we can use it later in our models
 db = SQLAlchemy()
@@ -21,6 +24,7 @@ def init_db():
         # Here I rename the password hashed as hashed_password for better clariy
         Column('hashed_password', String),
         Column('theme', String),
+        Column('next_birthday', Integer)
     )
     meta.create_all(engine)
 
@@ -34,6 +38,7 @@ class User():
         self.name = None
         self.mail = None
         self.theme_name = None
+        self.birthday = None
 
     def log_in(self, mail, password):
         print("HERE LOGIN USER")
@@ -50,6 +55,7 @@ class User():
                 self.name = users.loc[mail, 'name']
                 self.theme_name = users.loc[mail, 'theme']
                 self.logged_in = True
+                self.next_birthday = users.loc[mail, 'next_birthday']
 
         return self.logged_in
 
@@ -94,8 +100,12 @@ class User():
     #      active_connection.close()
     #    engine.dispose()
 
-    def add_user(self, name, email, hashed_password, theme_name='default'):
+    def add_user(self, name, email, hashed_password, theme_name='default',
+        next_birthday=datetime.utcnow()):
         print("HERE add_user USER")
+        epoch = datetime(1970,1,1)
+        next_birthday = (next_birthday - epoch).total_seconds()
+        next_birthday = int(next_birthday)
         ##Now see if we already have the user
         users = self.get_user_table()
 
@@ -111,10 +121,10 @@ class User():
             ## actually create the connection
             active_connection = engine.connect()
             ## preparing the command
-            column_name = 'email,name,hashed_password,theme'
+            column_name = 'email,name,hashed_password,theme,next_birthday'
             # TODO DIRTY - Change to orm
             # Here I rename the password hashed as hashed_password for better clariy
-            value = email + '\',\'' + name + '\',\'' + hashed_password + '\',\'' + theme_name
+            value = email + '\',\'' + name + '\',\'' + hashed_password + '\',\'' + theme_name + '\',\'' + str(next_birthday)
             ## A string with the sql command
             command=str('INSERT INTO '+table_name+' ('+column_name+') VALUES (\''+value+'\') ;')
             print(command)
@@ -129,6 +139,8 @@ class User():
             self.email = email
             self.logged_in = True
             self.theme_name = theme_name
+            self.next_birthday = next_birthday
+            print(self.next_birthday)
             return True
         ## if an user with this email is already there return false
         else:
@@ -206,17 +218,29 @@ def logout():
     return render_template('login.html')
 
 ## App route to get to user profile, if user logged in it provides a welcome message
-@app.route('/profile')
+@app.route('/profile', methods=['GET', 'POST'])
 def profile():
     print("HERE PROFILE")
     if current_user.logged_in:
+        if request.method=='POST':
+            update_next_birthday = request.form.get('update_next_birthday')
+            update_theme = request.form.get('update_theme')
+            # Convert to UTC
+            # Update current user / check it is saved in database
+            # then the next render shall be correct
+            print(update_next_birthday)
+            print(update_theme)
+            
         name = current_user.name
         theme_name = current_user.theme_name
+        next_birthday = current_user.next_birthday
+        
         # !!! Do not uncomment unless you want to see the sql injection demo !!!
         # SQL injection dirty test
         #current_user.test_sql_inj()
 
-        return render_template('profile.html', name=name, theme_name=theme_name)
+        return render_template('profile.html', name=name,
+            theme_name=theme_name, next_birthday=next_birthday)
     else:
         return redirect(url_for('login'))
 

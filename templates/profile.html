@@ -4,40 +4,48 @@
 <script>
   // Inspired heavily from https://codepen.io/vigzmv/pen/dVLmVG
   // Set the date we're counting down to
-  var endDate = new Date("Jan 9, 2018 00:00:00").getTime(); // Here replace with database content with the tweak
+  //var endDate = new Date("Jan 9, 2018 00:00:00").getTime(); // Here replace with database content with the tweak
   // Update the count down every 1 second
   var x = setInterval(function() {
+      var endDate = document.getElementById("next_birthday").value;
       // Get todays date and time
-      var now = new Date().getTime();
+      //var now = new Date().getTime();
+      var now = new Date().getTime() / 1000;
+      now = Math.floor(now);
       // Find the delta between now an the count down date
-      var delta = endDate - now;
+      var delta = Math.abs(endDate - now);
+      console.log(now);
+      console.log(endDate);
+      console.log(delta);
       // Time calculations for days, hours, minutes and seconds
-      var days = Math.floor(delta / (1000 * 60 * 60 * 24));
-      var hours = Math.floor((delta % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      var minutes = Math.floor((delta % (1000 * 60 * 60)) / (1000 * 60));
-      var seconds = Math.floor((delta % (1000 * 60)) / 1000);
+      var days = Math.floor(delta / (60 * 60 * 24));
+      var hours = Math.floor((delta % (60 * 60 * 24)) / (60 * 60));
+      var minutes = Math.floor((delta % (60 * 60)) / (60));
+      var seconds = Math.floor((delta % (60)));
       // Output the result in elements with id="cdHour/cdMin/cdSec"
-      document.getElementById("daysNum").innerHTML = ("0" + days).slice(-2);  
+      console.log(days)
+      console.log(hours)
+      console.log(minutes)
+      console.log(seconds)
+      document.getElementById("daysNum").innerHTML = ("0" + days).slice(-2);
       document.getElementById("hoursNum").innerHTML = ("0" + hours).slice(-2);
       document.getElementById("minsNum").innerHTML = ("0" + minutes).slice(-2);
       document.getElementById("secsNum").innerHTML = ("0" + seconds).slice(-2);
       // If the count down is over, write some text 
-      if (distance < 0) {
-          clearInterval(x);
-          document.getElementById("countContainer").innerHTML = "Your User table got destroyed :) Happy Birthday !";
-      }
+      //if (delta < 0) {
+      //    clearInterval(x);
+      //    document.getElementById("countContainer").innerHTML = "Your User table got destroyed :) Happy Birthday !";
+      //}
   }, 1000);
 </script>
-
 <h1 class="title">
-  <textarea cols="20" rows="20" type="date" id=birthdate>{{birthdate}}</textarea>
-  <textarea cols="20" rows="20" style="display:none;" type="date" id=birthdate>{{birthdate2}}</textarea>
+  <input type="hidden" id="next_birthday" value="{{next_birthday}}"/>
   <div class="column is-8 is-offset-2">
     <h3 class="title">Welcome, {{name}} !</h3>
   </div>
   <div class="column is-8 is-offset-2">
     <div class="box">
-      <div class="field">
+      <div class="field" id="countContainer">
         Your birthday countdown:
       </div>
       <div class="tile is-ancestor">
@@ -47,6 +55,8 @@
             <p class="subtitle" id="daysNum">Subtitle</p>
           </article>
         </div>
+        <!-- Perfect place to show how to put HTML comment here :) -->
+        <!-- -->
         <div class="tile is-parent">
           <article class="tile is-child notification is-warning">
             <p class="title">Hours</p>
@@ -65,21 +75,22 @@
             <p class="subtitle" id="secsNum">Subtitle</p>
           </article>
         </div>
+        <!-- -->
       </div>
    </div>
   </div>
 
-  <h2>HTML Image Example</h2>  
-  <img src="https://www.gifimili.com/image-3731-fraise/" alt="Une fraise">  
+  <!--<h2>HTML Image Example</h2>  
+  <img src="https://www.gifimili.com/image-3731-fraise/" alt="Une fraise">  -->
   
   <div class="column is-4 is-offset-4">
     <h3 class="title">Your profile information</h3>
     <div class="box">
-      <form method="POST" action="/profile_update">
+      <form method="POST" action="/profile">
         <div class="field">
             Please select your next birthday, then click update button:
             <div class="control">
-                <input class="input is-large" type="date" name="birthdate_update" placeholder="Your birthday" autofocus="">
+                <input class="input is-large" type="date" name="update_next_birthday" placeholder="Your birthday" autofocus="">
             </div>
         </div>
         <div class="field">
@@ -87,7 +98,7 @@
             <br>
             If you are not happy with that choice, please choose another one in the list and click update profile button.
           <div class="select">
-            <select>
+            <select name="update_theme">
               <option>default</option>
               <option>spring</option>
               <option>summer</option>
