@@ -1,21 +1,27 @@
 # dummy_user_model
-A dummy login interface for users
-A bare-bone script to handle user log-in. It currently allows a user to register and it greets the user by name in the profile picture
-The backbone of the script is a Flask application.
-It is supposed to run under Linux Ubuntu 18.04 LTS
+==================
+A dummy login interface for users.
+A bare-bone python script-based app to handle user log-in. It currently allows a user to register and it greets the user by name in the profile picture.
+The backbone of the app is a Flask application.
+
+It is supposed to run under Linux Ubuntu 18.04 LTS.
 
 Development environment:
- - Windows WSL Ubuntu 18.04 LTS
+ - Windows WSL Ubuntu 18.04 LTS (only tested on that platform)
  - so it should be fine on a native or VM Linux Ubuntu 18.04 LTS
  - however, because of the use of shell scripts:
    * some adaptation may be required for running on macOs (bash -> zsh ?)
    * not tested on a pure Windows environment
 
+--
+https://github.com/cedric2080
+
 ### How-To-Run - Modified version as of 09/05/2021
+==================================================
  - Prerequisites before running the bash scripts:
   * python3
   * pip3
-  * virtualenv3
+  * virtualenv
 
  - Development version
  We make an extensive usage of bash script.
@@ -54,14 +60,14 @@ Development environment:
  - Production
  [nc]
 ###
-https://github.com/cedric2080
-### END
 
 ### Challenge
+=============
 # TODO - 05/05/2021
 - to give the user the possibility of choosing a colour in the profile page *DONE*
 - to change the theme accordingly *DONE*
 - to ask the user for his/her birthday *DONE*
+- to make these changes persistent in user database *DONE*
 - to create a countdown again in the profile page *DONE*
 - bugs and security analyses:
   * IT security team is scared that this would make us vulnerable to sql injection. *DONE*
@@ -69,14 +75,15 @@ https://github.com/cedric2080
 ##
 
 # Priorities in order of importance:
- - The version is running and existing functionalities are preserved
- - Changes are documented (git commits quality and comments in the code)
- - The  new functionalities (user-customized color, birthday countdown) are implemented
- - Possible security issues and bugs reported or fixed
- - General improvements in the code
+ - The version is running and existing functionalities are preserved *OK*
+ - Changes are documented (git commits quality and comments in the code) *OK*
+ - The  new functionalities (user-customized color, birthday countdown) are implemented *OK*
+ - Possible security issues and bugs reported or fixed *OK*
+ - General improvements in the code *OK*
 ###
 
 ### Description of the existing functionalities
+===============================================
  - localhost:5000/ serves a home page with a central title: Flask Login Example and a short description. Background color is green/blue. On right banner, a Home, a Profile, a Login, a Signup and a Logout links.
  
  - if not logged-in clicking the Profile button redirect to Login (/login)
@@ -95,9 +102,10 @@ https://github.com/cedric2080
     * after solving the init_db bug, I could correctly sign-up an account
 ###
 
-### Critics of the plain original version and room for improvements
- Project
- -------
+### Analysis of the plain original version and room for improvements
+====================================================================
+Project
+-------
  - I see no README.MD on the project. Therefore, I am not sure how to launch properly the app.
    * the modern way with 'flask db init', 'flask run' does not work because of the current structure of the single script
    * so I have no other way than launching the app with the command 'env/bin/python3 plain_version.py'. My observation are the following:
@@ -107,14 +115,14 @@ https://github.com/cedric2080
 
      The absence of the README.MD is annoying because it can confuse the user which may ask himself if he needs to run some extra commands or different commands.
      After solving the init_db bug, I noticed my approach to call the python script directly, as for very simple Flask example, is correct.
- 
+ - I see no .gitignore, I see no tests, I see no requirements.txt
  - some "typos-formatting" made the code non PEP-8 and difficult to read.
  
- ==========
-  SECURITY
- ==========
- SQL Injections
- --------------
+==========
+ SECURITY
+==========
+SQL Injections
+--------------
  - I do not like to read the SQL code in such applications:
    * to me, it is red flag to see that because it may indicate SQL injection vulnerabilities (https://xkcd.com/327/)
      -> they are read using pandas readsql feature so it is supposed to be safe (https://github.com/pandas-dev/pandas/blob/v1.2.4/pandas/io/sql.py#L426-L528
@@ -131,41 +139,47 @@ https://github.com/cedric2080
   however, building on these bricks, with a more complicated app, we could well imagine that some heavy day we forget the risk and create a 'SELECT * from user WHERE name = 0;DROP TABLE user;' by choosing carefully the name. This would happened by using for example 'cursor=db.cursor()' and 'cursor.executescript(command)' (see my dirty test method test_sql_inj on User class), because we have already made half the trip by choosing to connect to the database the direct way (and not with the ORM for example).
    (!)(!)(!)
 
+Remember me
+-----------
+ - This function is not working as far as I noticed.
+ - To me, it raise concerns because it may store locally data in order for the user to access the site even if he losts connection to the server.
+ - Persistency of data on frontend side does not look good...
+  -> I deleted this option, unless I get an explanation why it is necessary and to make it "great again"
+  (I think Flask-Login can do it, but I am not sure what it brings with respect to session cookie or token enable sessions with JWTs for example)
+
 Saved login
 -----------
 - There is a "view saved login" on the email textbox, it seems to use the browser lock (Firefox Lockwise):
    * I have no big experience with such feature in a browser, but I do not like that. Looks like a flaw ...
-   * I recommend rather to use Keepass to store credentials.
+   * I recommend rather to use Keepass to store credentials
+   * I have not investigated wheter it could be prevented by code
 
-Production
-----------
-- For serving ourside of a secured infrastructure, reverse proxy and https/ssl using nginx.
-
- 
- Flask app structure
- -------------------
- - the structure of the app is very monolithic and already complicated (not complex :) ). It will extremely difficult to maintain and extend, even for a simple example.
- It is better to keep things simpler, shorter and more approachable so I would at least decouple the script in between data models, routes , app code.
+Flask app structure
+-------------------
+ - the structure of the app is very monolithic and already complicated for a small thing (not complex :) ). It may be extremely difficult to maintain and extend (to understand), even for a simple example. It is better to keep things simpler, shorter and more approachable so I would at least decouple the script in between data models, routes , app code.
 
  - I noticed in the main entry point of the script that a call to a potential factory for the app has been commented. I do not really know why this app does not use a factory while it would make it more configurable and easy to extend as a good practice.
 
- - For the datasystem, direct execution is used. SQLAlchemy is normally recommended with the ORM (using Sessions). Flask-SqlAlchemy makes this even easier.
+ - For the datasystem, direct execution is used. SQLAlchemy is normally recommended with the ORM (using Sessions). Flask-SqlAlchemy makes this even easier. Then code is clearer.
 
- Frontend
- --------
+Frontend
+--------
  - I see the CSS style is directly downloaded from the website. I would not do that because who know what can happen: the website is down, file get hacked or corrupted, it may be difficult to configure the firewalls in production. Then I would prefer to download the chosen style. It will also allow me to dupplicate the file easily locally
- in order to make variations for the profile, for example.
+ in order to make variations for the profile, for example. Although, by the way, I am questionning my-self now which best practice would be ...
 
- Various
- -------
+Various
+-------
  - I noticed that the init_db is not called with the double brackets.
  - I noticed a url_db parameter making stuff crashing when calling init_db().
  - I noticed the change to database were no persistent: if we restart flask server, the .db file is empty even if we signed up some people in.
    * it was probably due to the init_db bug
-
+ - No management of exception
+ - No management of error-codes, I kept that for the sake of speed having limited time. But if we need to connect to another frontend, definitely a stronger API is necessary.
+ - I see no code documentation like sphinx-doc
 ###
 
 ### Description of the new features
+===================================
  - profile color:
    * we allow the user to select in between 4 different themes, additionnaly to the default one which is common to the rest of the website
    * the color is applied on the background of the block defined in profile page. we keep the outter-border common to the rest of the website
@@ -178,25 +192,36 @@ Production
  - countdown:
    * the countdown calculate the number of days, hours, minutes, seconds separated by current time and the date of the birthday.
    * despite all datetimes are calculated in utc in the backend, the countdown of the frontend performs the offset depending on the locales of the user.
+   * an additional unplanned button is added to allow the user to force the countdown to zero and check what is happening then.
+ - backend:
+   * identified bug corrected for database and adding user
+   * reformated code to be more readable
+   * updated comments, especially deleted useless ones when code was refactored more readable and more explicit
+   * added docstrings as good practices
+   * separated core app, routes/views, data and helper_functions
+   * also, I create some helper functions, and created some getters and connectors to avoid repeating the database connection commands.
 ###
 
 ### Definition of functional unit tests
+=======================================
 I did not find the usefulness of configuring a testing framework here, given the small number of features and low time I can allocate.
 Therefore, tests are manual and UI oriented, based on *User Stories* defined here below. Described as below.
 
 User stories
 ------------
-- signup: As a new user, I can sign-up a new account (new unique name, password robust proposed by the form and easy password allowed, free text available for name). My theme will be the default one by default, I can change it later. I am asked at registration on my Birthday date. After registration, I am redirected to my profile page.
+- signup: As a new user, I can sign-up a new account (new unique name, password robust proposed by the form and easy password allowed, free text available for name). My theme will be the default one by default, I can change it later. After registration, I am redirected to my profile page.
 - login: As a registered user, I can log myself into the system. After a succesful login, I am redirected to my profile page. 
 - logout: As a logged-in user, I can log myself out of the system. I am redirected to the login page.
-- profile printout: As a logged-in user, I can access my profile page. There, I can update the color of my theme by making a choice amongst a list.
-The profile page will show a countdown.
+- profile printout: As a logged-in user, I can access my profile page. There, I can update the color of my theme by making a choice amongst a list. I can indicate my birthday on profile page, but not at registration because this is sensitive data and at sign-up it may be more difficult to ensure security. The profile page will show a countdown.
 - navigation: As a user, I can navigate through the portal home, login, logout, signup with the navbar upper right.
-- 
 
 ===============
  List of Tests
 ===============
+
+I test the app using the UI, these are manual tests. Fortunately, thanks to the shell script described before, it makes it easier to update and restart the server.
+So even manual test is not so cumbersome.
+
 Generic users for tests
 -----------------------
  - follow procedure in how-to run to deploy the app in ./scratch or run it again from a previous deployment
@@ -251,26 +276,38 @@ SQL Injection
 
 ###
 
-### Way forward - next improvements
+### Way forward - bugs - next improvements
+==========================================
+  TODO
+  ----
   - demo
-  - when already logged in as user 1, if I try to login on user2, and I fail password, I end up again on user1 profile
-  - understanding the problem of 2h offset at init
   - change structure to separate data models, app and routes
-  - session timout
+  - session timeout
   - checking cookie security
-  - mentionning why we remove remember me
-  - understanding this popup with saved password 
+  - understanding this popup with saved password
+
   -----------------------------------------------------------
-  - automatize unitary functional tests and integration tests
-  - conduct UATs
-  - improve versatility and modularity:
-    * create the application factory
-    * use blueprints for modules
-    * include the migrate feature for databases
-  - industrialize the application for production:
-    * separate completely frontend to serve a single page application using vueJs or react frameworks for example
-      x write the API contract for the backend and implement it
+  
+  Identified Bugs
+  ---------------
+  - understanding the problem of 2h offset at init: there is a remaining bug on the counter because of the UTC/locale offset, it occurs only at creation of the user because the date comes from the backend, no time to solve that, anyway, it disapear as soon as the user provide his real next birthday and before this action, the counter should maybe even be force to --/--/--/-- (but I wanted to show something living)
+  
+  Potential Improvements
+  ----------------------
+  - when already logged in as user 1, if I try to login on user2, and I fail password, I end up again on user1 profile: I am not sure it is good practice that a user logged-in can go to profile, then login, attempt a false login, and can still go to his profile page and see his data :)
+  - to automatize unitary functional tests and integration tests
+  - to conduct UATs
+  - to improve versatility and modularity:
+    * to create the application factory
+    * to use blueprints for a better extendability of the next features, yet keeping things decoupled (we may even think of a microservices arch if we are brave enough :) )
+    * to include the migrate feature for databases
+  - to industrialize the application for production:
+    * to separate completely frontend in order to serve a single page application using vueJs or react frameworks for example
+      x to write the API contract for the backend and implement it
     * dockerize ?
-    * use a production webserver like nginx, that would proxie request to a Web Server Gateway Interface (WSGI) like gunicorn which then call Flask app code and finally returns the response.
-  - TODO
+    * to use a production webserver like nginx, that would proxie request through https/ssl to a Web Server Gateway Interface (WSGI) like gunicorn which then call Flask app code and finally returns the response.
+  - include real code documentation using sphinx-doc (docstrings already there :))
+  - test server in other environments if necessary, test frontend on different browser than Chrome and Firefox, and on mobile devices if necessary (the stylesheet is responsive I believe)
 ###
+
+### END
