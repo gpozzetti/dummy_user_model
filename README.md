@@ -120,6 +120,29 @@ Project
  - I see no .gitignore, I see no tests, I see no requirements.txt
  - some "typos-formatting" made the code non PEP-8 and difficult to read.
  
+Flask app structure
+-------------------
+ - the structure of the app is very monolithic and already complicated for a small thing (not complex :) ). It may be extremely difficult to maintain and extend (to understand), even for a simple example. It is better to keep things simpler, shorter and more approachable so I would at least decouple the script in between data models, routes , app code.
+
+ - I noticed in the main entry point of the script that a call to a potential factory for the app has been commented. I do not really know why this app does not use a factory while it would make it more configurable and easy to extend as a good practice.
+
+ - For the datasystem, direct execution is used. SQLAlchemy is normally recommended with the ORM (using Sessions). Flask-SqlAlchemy makes this even easier. Then code is clearer.
+
+Frontend
+--------
+ - I see the CSS style is directly downloaded from the website. I would not do that because who knows what can happen: the website is down, file get hacked or corrupted, it may be difficult to configure the firewalls in production. Then I would prefer to download the chosen style. It will also allow me to dupplicate the file easily locally
+ in order to make variations for the profile, for example. Although, by the way, I am questionning my-self now which best practice would be ...
+
+Various
+-------
+ - I noticed that the init_db is not called with the double brackets.
+ - I noticed a url_db parameter making stuff crashing when calling init_db().
+ - I noticed the change to database were not persistent: if we restart flask server, the .db file is empty even if we signed up some people in.
+   * it was probably due to the init_db bug
+ - No management of exception
+ - No management of error-codes, I kept that for the sake of speed having limited time. But if we need to connect to another frontend, definitely a stronger API is necessary.
+ - I see no code documentation like sphinx-doc
+
 ==========
  SECURITY
 ==========
@@ -156,28 +179,9 @@ Saved login
    * I recommend rather to use Keepass to store credentials
    * I have not investigated wheter it could be prevented by code
 
-Flask app structure
--------------------
- - the structure of the app is very monolithic and already complicated for a small thing (not complex :) ). It may be extremely difficult to maintain and extend (to understand), even for a simple example. It is better to keep things simpler, shorter and more approachable so I would at least decouple the script in between data models, routes , app code.
-
- - I noticed in the main entry point of the script that a call to a potential factory for the app has been commented. I do not really know why this app does not use a factory while it would make it more configurable and easy to extend as a good practice.
-
- - For the datasystem, direct execution is used. SQLAlchemy is normally recommended with the ORM (using Sessions). Flask-SqlAlchemy makes this even easier. Then code is clearer.
-
-Frontend
---------
- - I see the CSS style is directly downloaded from the website. I would not do that because who knows what can happen: the website is down, file get hacked or corrupted, it may be difficult to configure the firewalls in production. Then I would prefer to download the chosen style. It will also allow me to dupplicate the file easily locally
- in order to make variations for the profile, for example. Although, by the way, I am questionning my-self now which best practice would be ...
-
-Various
--------
- - I noticed that the init_db is not called with the double brackets.
- - I noticed a url_db parameter making stuff crashing when calling init_db().
- - I noticed the change to database were not persistent: if we restart flask server, the .db file is empty even if we signed up some people in.
-   * it was probably due to the init_db bug
- - No management of exception
- - No management of error-codes, I kept that for the sake of speed having limited time. But if we need to connect to another frontend, definitely a stronger API is necessary.
- - I see no code documentation like sphinx-doc
+Session Cookies
+---------------
+ - does not seem completely configured. especially, lifetime can be up to 37 days. what about a session cookie stolen on client side as it seems that the session is not configured to be server-side stored
 ###
 
 ### Description of the new features
