@@ -1,0 +1,7 @@
+Flask
+Flask-Migrate
+flask-sqlalchemy
+Flask-Session
+nose2
+pandas
+python-dotenv
