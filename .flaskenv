@@ -1,2 +1,2 @@
 # .flaskenv
-FLASK_APP=plain_version
+FLASK_APP=user_portal

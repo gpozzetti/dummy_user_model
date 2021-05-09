@@ -11,4 +11,4 @@ NC='\033[0m' # No Color
 #echo "UPGRADE to force flask to flush and start new db connection in case something went wrong"
 #env/bin/python3 -m flask db upgrade
 
-env/bin/python3 plain_version.py
+env/bin/python3 user_portal.py
