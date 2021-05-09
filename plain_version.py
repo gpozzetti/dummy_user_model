@@ -4,15 +4,16 @@ A new user can sign-up, a registered user can log-in, access its profile, touch 
 or changing the theme color of its profile page.
 A logged-in user can log-out.
 
-.. moduleauthor:: Cedric Renzi
+.. moduleauthor:: Cedric Renzi, https://github.com/cedric2080
 """
 
-from flask import Flask,flash
+from flask import Flask, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_session import Session
 # Comment only for challenge: Blueprint are not used in the orginal version, however I would really
 # recommend their usage for the sake of modularization
-from flask import Blueprint, render_template, redirect, url_for, request
+##from flask import Blueprint
+from flask import render_template, redirect, url_for, request
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import create_engine, Column, MetaData
 from sqlalchemy import Table, DateTime, String, Integer
@@ -43,7 +44,7 @@ def init_db():
     )
     meta.create_all(engine)
 
-### user class (probably better to use the flask one but still have to understand it)
+### User class (probably better to use the flask one but still have to understand it)
 # Comment only for challenge: Indeed, I do not like the way this data model is elaborated.
 # It looks very complicated on the usage, while flask-alchemy, that we import here, is meant to make stuff
 # much more pythonic

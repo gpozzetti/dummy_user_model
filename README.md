@@ -14,7 +14,7 @@ Development environment:
    * not tested on a pure Windows environment
 
 --
-https://github.com/cedric2080
+Author:: Cedric Renzi, https://github.com/cedric2080
 
 ### How-To-Run - Modified version as of 09/05/2021
 ==================================================
@@ -294,6 +294,7 @@ SQL Injection
   
   Potential Improvements
   ----------------------
+  - to review the data model, leveraging completely the ORM and get rid of the SQL strings, avoid all direct connection commands. It would also be more rationale as it would avoid to use two methods for making these SQL request (like we would suppress using pandas for that)
   - when already logged in as user 1, if I try to login on user2, and I fail password, I end up again on user1 profile: I am not sure it is good practice that a user logged-in can go to profile, then login, attempt a false login, and can still go to his profile page and see his data :)
   - to automatize unitary functional tests and integration tests
   - to conduct UATs
@@ -308,6 +309,7 @@ SQL Injection
     * to use a production webserver like nginx, that would proxie request through https/ssl to a Web Server Gateway Interface (WSGI) like gunicorn which then call Flask app code and finally returns the response.
   - include real code documentation using sphinx-doc (docstrings already there :))
   - test server in other environments if necessary, test frontend on different browser than Chrome and Firefox, and on mobile devices if necessary (the stylesheet is responsive I believe)
+  - encode themes as a new table with relationship to user table
 ###
 
 ### END
