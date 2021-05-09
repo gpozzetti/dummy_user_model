@@ -100,6 +100,8 @@ Author:: Cedric Renzi, https://github.com/cedric2080
    "Internal Server Error
     The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application"
     * after solving the init_db bug, I could correctly sign-up an account
+
+ - the auth does not use token serialization in the session cookies, I do not see the session stored on the server, and cookies may not be signed. https://palletsprojects.com/p/itsdangerous/
 ###
 
 ### Analysis of the plain original version and room for improvements
@@ -164,14 +166,14 @@ Flask app structure
 
 Frontend
 --------
- - I see the CSS style is directly downloaded from the website. I would not do that because who know what can happen: the website is down, file get hacked or corrupted, it may be difficult to configure the firewalls in production. Then I would prefer to download the chosen style. It will also allow me to dupplicate the file easily locally
+ - I see the CSS style is directly downloaded from the website. I would not do that because who knows what can happen: the website is down, file get hacked or corrupted, it may be difficult to configure the firewalls in production. Then I would prefer to download the chosen style. It will also allow me to dupplicate the file easily locally
  in order to make variations for the profile, for example. Although, by the way, I am questionning my-self now which best practice would be ...
 
 Various
 -------
  - I noticed that the init_db is not called with the double brackets.
  - I noticed a url_db parameter making stuff crashing when calling init_db().
- - I noticed the change to database were no persistent: if we restart flask server, the .db file is empty even if we signed up some people in.
+ - I noticed the change to database were not persistent: if we restart flask server, the .db file is empty even if we signed up some people in.
    * it was probably due to the init_db bug
  - No management of exception
  - No management of error-codes, I kept that for the sake of speed having limited time. But if we need to connect to another frontend, definitely a stronger API is necessary.
@@ -281,10 +283,7 @@ SQL Injection
   TODO
   ----
   - demo
-  - change structure to separate data models, app and routes
-  - session timeout
-  - checking cookie security
-  - understanding this popup with saved password
+  - session timeout and not allowing relogin when already logged in to avoid weird behavior
 
   -----------------------------------------------------------
   
@@ -307,6 +306,8 @@ SQL Injection
       x to write the API contract for the backend and implement it
     * dockerize ?
     * to use a production webserver like nginx, that would proxie request through https/ssl to a Web Server Gateway Interface (WSGI) like gunicorn which then call Flask app code and finally returns the response.
+    * JWT to make it more scallable and easy to protect routes/endpoints ?
+    * JWT or JWS (like https://palletsprojects.com/p/itsdangerous/) to sign cookies and make it more secure during browsing for the man-in-the-middle attack?
   - include real code documentation using sphinx-doc (docstrings already there :))
   - test server in other environments if necessary, test frontend on different browser than Chrome and Firefox, and on mobile devices if necessary (the stylesheet is responsive I believe)
   - encode themes as a new table with relationship to user table
